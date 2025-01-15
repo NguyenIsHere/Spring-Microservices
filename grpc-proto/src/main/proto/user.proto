@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package user;
+
+option java_multiple_files = true; // Tách mỗi message ra file riêng
+
+// User Service
+service UserService {
+    // Lấy thông tin user theo email
+    rpc GetUserByEmail(UserEmailRequest) returns (UserResponse);
+
+    // Tạo user mới
+    rpc CreateUser(CreateUserRequest) returns (UserResponse);
+
+    // Cập nhật thông tin user
+    rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
+}
+
+// Request để tìm user theo email
+message UserEmailRequest {
+    string email = 1;
+}
+
+// Request để tạo user mới
+message CreateUserRequest {
+    string name = 1;
+    string email = 2;
+    string password = 3;
+}
+
+// Request để cập nhật thông tin user
+message UpdateUserRequest {
+    string email = 1; // Email để xác định user
+    string name = 2; // Tên mới (nếu có)
+    string password = 3; // Mật khẩu mới (nếu có)
+}
+
+// Response cho các thao tác user
+message UserResponse {
+    string name = 1;
+    string email = 2;
+    string password = 3;
+}

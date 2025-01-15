@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "grpc.server.port",
+    "type": "java.lang.String",
+    "description": "A description for 'grpc.server.port'"
+  },
+  {
+    "name": "kafka.topics.payment-request",
+    "type": "java.lang.String",
+    "description": "A description for 'kafka.topics.payment-request'"
+  },
+  {
+    "name": "schema.registry.url",
+    "type": "java.lang.String",
+    "description": "A description for 'schema.registry.url'"
+  }
+]}

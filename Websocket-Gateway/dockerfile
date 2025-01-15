@@ -1,0 +1,9 @@
+FROM openjdk:20-jdk
+
+WORKDIR /app
+
+COPY build/libs/Websocket-Gateway-*.jar app.jar
+
+EXPOSE 8049
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

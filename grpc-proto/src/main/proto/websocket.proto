@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package websocket;
+
+option java_multiple_files = true; // Tách mỗi message ra file riêng
+
+// Định nghĩa service WebSocketService
+service WebSocketService {
+    rpc SendNotification (NotificationRequest) returns (NotificationResponse);
+}
+
+// Request gửi thông báo
+message NotificationRequest {
+    string userId = 1;
+    string message = 2;
+}
+
+// Response trả về sau khi gửi thông báo
+message NotificationResponse {
+    bool success = 1;
+    string error = 2;
+}

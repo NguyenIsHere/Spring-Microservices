@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package payment;
+
+// Import để dùng các message liên quan
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+
+// Payment Service
+service PaymentService {
+    // Tạo giao dịch thanh toán mới
+    rpc CreatePayment(CreatePaymentRequest) returns (PaymentResponse);
+
+    // Lấy thông tin thanh toán theo orderId
+    rpc GetPaymentByOrderId(GetPaymentByOrderIdRequest) returns (PaymentResponse);
+
+    // Cập nhật trạng thái thanh toán
+    rpc UpdatePaymentStatus(UpdatePaymentStatusRequest) returns (PaymentResponse);
+
+    // Xử lý callback từ ZaloPay
+    rpc HandleZaloPayCallback(ZaloPayCallbackRequest) returns (ZaloPayCallbackResponse);
+}
+
+// Request để tạo giao dịch thanh toán mới
+message CreatePaymentRequest {
+    string orderId = 1;  // ID của đơn hàng
+    string callback_url = 2; // Url để zalopay callback 
+}
+
+// Request để lấy thông tin thanh toán theo orderId
+message GetPaymentByOrderIdRequest {
+    string orderId = 1; // ID của đơn hàng
+}
+
+// Request để cập nhật trạng thái thanh toán
+message UpdatePaymentStatusRequest {
+    string orderId = 1; // ID của đơn hàng
+    string status = 2;  // Trạng thái mới của thanh toán (PAID, FAILED, CANCELLED)
+}
+
+// Phản hồi khi thao tác với thanh toán
+message PaymentResponse {
+    string id = 1;       // ID của thanh toán
+    string orderId = 2;  // ID của đơn hàng
+    string userId = 3;   // ID của người dùng
+    string status = 4;   // Trạng thái thanh toán
+    double amount = 5;   // Số tiền cần thanh toán
+    string orderUrl = 6; // URL tới cổng thanh toán
+    string message = 7; // Thông báo trạng thái
+    google.protobuf.Timestamp createdAt = 8; // Thời gian tạo giao dịch
+    google.protobuf.Timestamp updatedAt = 9; // Thời gian cập nhật giao dịch
+}
+
+// Request xử lý callback từ ZaloPay
+message ZaloPayCallbackRequest {
+    string data = 1; // Dữ liệu mã hóa từ ZaloPay
+    string mac = 2;  // MAC để xác thực callback
+}
+
+// Response xử lý callback từ ZaloPay
+message ZaloPayCallbackResponse {
+    int32 return_code = 1;       // Mã trả về (1: thành công, 0: thất bại, -1: MAC không hợp lệ)
+    string return_message = 2;   // Thông báo kết quả
+}

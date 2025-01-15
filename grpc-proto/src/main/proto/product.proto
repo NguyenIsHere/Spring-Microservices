@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package product;
+import "google/protobuf/empty.proto";
+
+// Cho phép tạo nhiều file Java riêng thay vì gói tất cả vào một class
+option java_multiple_files = true;
+
+/* =========================
+   1. SERVICE DEFINITIONS
+   ========================= */
+
+// Product Service
+service ProductService {
+    rpc GetProduct (ProductRequest) returns (ProductResponse);
+    rpc CreateProduct (CreateProductRequest) returns (ProductResponse);
+    rpc GetAllProducts (google.protobuf.Empty) returns (ProductListResponse);
+    rpc ReduceStock (ReduceStockRequest) returns (google.protobuf.Empty);
+}
+
+// ProductVariant Service
+service ProductVariantService {
+    rpc GetProductVariant (ProductVariantRequest) returns (ProductVariantResponse);
+    rpc CreateProductVariant (CreateProductVariantRequest) returns (ProductVariantResponse);
+    rpc GetVariantsByProduct (GetVariantsByProductRequest) returns (ProductVariantListResponse);
+}
+
+/* =========================
+   2. MESSAGES CHO PRODUCT
+   ========================= */
+
+message ProductRequest {
+    string id = 1;  // ID của Product
+}
+
+// Yêu cầu tạo Product
+message CreateProductRequest {
+    string name = 1;
+    string description = 2;
+    string brand = 3;
+    string category = 4;
+}
+
+// Phản hồi cho các thao tác CRUD lên Product
+message ProductResponse {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string brand = 4;
+    string category = 5;
+    repeated ProductVariant variants = 6; // Chứa các variant liên quan
+}
+
+// Danh sách Product
+message ProductListResponse {
+    repeated ProductResponse products = 1;
+}
+
+// Trừ đi các sản phẩm đã thanh toán
+message ReduceStockRequest {
+    string productVariantId = 1; // ID của ProductVariant
+    int32 quantity = 2;          // Số lượng cần giảm
+}
+
+// Định nghĩa Product (có thể dùng cho mục đích khác, nếu cần)
+message Product {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string brand = 4;
+    string category = 5;
+}
+
+/* =========================
+   3. MESSAGES CHO PRODUCTVARIANT
+   ========================= */
+
+// Định nghĩa ProductVariant
+message ProductVariant {
+    string id = 1;
+    double price = 2;
+    int32 quantity = 3;
+    string color = 4;
+    string size = 5;
+    string imageUrl = 6;
+    bool isAvailable = 7;
+    string productId = 8;
+}
+
+// Request lấy hoặc tạo 1 ProductVariant
+message ProductVariantRequest {
+    string id = 1; // ID của variant
+}
+
+// Tạo mới 1 ProductVariant
+message CreateProductVariantRequest {
+    string price = 1;       // Giá (dưới dạng string -> convert sang double)
+    int32 quantity = 2;
+    string color = 3;
+    string size = 4;
+    string imageUrl = 5;
+    bool isAvailable = 6;
+    string productId = 7;   // Liên kết với Product
+}
+
+// Phản hồi khi thao tác với ProductVariant
+message ProductVariantResponse {
+    string id = 1;
+    double price = 2;
+    int32 quantity = 3;
+    string color = 4;
+    string size = 5;
+    string imageUrl = 6;
+    bool isAvailable = 7;
+    string productId = 8;   // Liên kết với Product
+}
+
+// Yêu cầu lấy các ProductVariant theo ProductId
+message GetVariantsByProductRequest {
+    string productId = 1;
+}
+
+// Danh sách ProductVariantResponse
+message ProductVariantListResponse {
+    repeated ProductVariantResponse variants = 1;
+}

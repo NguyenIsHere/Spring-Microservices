@@ -1,0 +1,19 @@
+{
+  "groups": [
+    {
+      "name": "grpc.channels"
+    }
+  ],
+  "properties": [
+    {
+      "name": "grpc.channels.productServiceChannel.address",
+      "type": "java.lang.String",
+      "description": "The address of the gRPC server channel"
+    },
+    {
+      "name": "grpc.channels.productServiceChannel.negotiation-type",
+      "type": "java.lang.String",
+      "description": "PLAINTEXT or TLS"
+    }
+  ]
+}

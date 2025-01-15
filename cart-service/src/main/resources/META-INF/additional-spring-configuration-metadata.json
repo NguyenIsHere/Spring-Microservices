@@ -1,0 +1,27 @@
+{"properties": [
+  {
+    "name": "grpc.channels.productServiceChannel.negotiationType",
+    "type": "java.lang.String",
+    "description": "A description for 'grpc.channels.productServiceChannel.negotiationType'"
+  },
+  {
+    "name": "grpc.channels.productServiceChannel.address",
+    "type": "java.lang.String",
+    "description": "A description for 'grpc.channels.productServiceChannel.address'"
+  },
+  {
+    "name": "grpc.channels.webSocketGatewayChannel.negotiationType",
+    "type": "java.lang.String",
+    "description": "A description for 'grpc.channels.productServiceChannel.negotiationType'"
+  },
+  {
+    "name": "grpc.channels.webSocketGatewayChannel.address",
+    "type": "java.lang.String",
+    "description": "A description for 'grpc.channels.productServiceChannel.address'"
+  },
+  {
+    "name": "grpc.server.port",
+    "type": "java.lang.String",
+    "description": "A description for 'grpc.server.port'"
+  }
+]}

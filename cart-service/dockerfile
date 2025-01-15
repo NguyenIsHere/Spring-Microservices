@@ -1,0 +1,9 @@
+FROM openjdk:20-jdk
+
+WORKDIR /app
+
+COPY build/libs/cart-service-*.jar app.jar
+
+EXPOSE 5056
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

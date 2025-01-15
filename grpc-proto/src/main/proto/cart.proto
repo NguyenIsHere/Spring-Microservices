@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package cart;
+
+option java_multiple_files = true;
+
+// Import product.proto để dùng ProductVariant
+import "product.proto";
+
+// Cart Service
+service CartService {
+    rpc AddToCart(AddToCartRequest) returns (CartResponse); // Thêm sản phẩm vào giỏ hàng
+    rpc GetCart(GetCartRequest) returns (CartResponse); // Lấy giỏ hàng theo userId
+    rpc ClearCart(ClearCartRequest) returns (CartResponse); // Xóa toàn bộ giỏ hàng
+}
+
+// Message cho sản phẩm trong giỏ hàng
+message CartItem {
+    product.ProductVariant productVariant = 2; // Thông tin sản phẩm (import từ product.proto)
+    int32 quantity = 3; // Số lượng sản phẩm
+    double price = 4; // Tổng giá của CartItem (price * quantity)
+}
+
+// Message cho giỏ hàng
+message Cart {
+    string id = 1; // ID của giỏ hàng
+    string userId = 2; // ID hoặc email của user
+    repeated CartItem items = 3; // Danh sách sản phẩm trong giỏ hàng
+    double totalPrice = 4; // Tổng giá trị của giỏ hàng
+    int32 totalQuantity = 5; // Tổng số lượng sản phẩm
+}
+
+// Request để thêm sản phẩm vào giỏ hàng
+message AddToCartRequest {
+    string userId = 1; // ID của user
+    string productVariantId = 2; // ID của ProductVariant
+    int32 quantity = 3; // Số lượng cần thêm
+}
+
+// Request để lấy giỏ hàng
+message GetCartRequest {
+    string userId = 1; // ID của user
+}
+
+// Request để xóa giỏ hàng
+message ClearCartRequest {
+    string userId = 1; // ID của user
+}
+
+// Response trả về giỏ hàng
+message CartResponse {
+    Cart cart = 1; // Giỏ hàng
+}

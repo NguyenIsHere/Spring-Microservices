@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: nexus
+    ports:
+      - "8081:8081" # Mở cổng để truy cập Nexus trên máy chủ
+    volumes:
+      - nexus-data:/nexus-data # Lưu trữ dữ liệu Nexus
+    environment:
+      - NEXUS_SECURITY_RANDOMPASSWORD=false # Tắt việc tạo mật khẩu ngẫu nhiên
+    restart: unless-stopped
+
+volumes:
+  nexus-data:
