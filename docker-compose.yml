@@ -3,7 +3,7 @@ version: '3.8'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
+    container_name: zookeeper2
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -14,7 +14,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
-    container_name: kafka
+    container_name: kafka2
     depends_on:
       - zookeeper
     ports:
@@ -35,7 +35,7 @@ services:
 
   schema-registry:
     image: confluentinc/cp-schema-registry:latest
-    container_name: schema-registry
+    container_name: schema-registry2
     depends_on:
       - kafka
     ports:
@@ -50,7 +50,7 @@ services:
 
   nexus:
     image: sonatype/nexus3:latest
-    container_name: nexus
+    container_name: nexus2
     ports:
       - "8081:8081"
     volumes:
@@ -63,7 +63,7 @@ services:
 
   redis:
     image: redis:7.0
-    container_name: redis
+    container_name: redis2
     ports:
       - "6379:6379"
     healthcheck:
@@ -82,7 +82,7 @@ services:
   gateway:
     build:
       context: ./gateway
-    container_name: gateway
+    container_name: gateway2
     ports:
       - "8080:8080"
     depends_on:
@@ -94,7 +94,7 @@ services:
   websocket-gateway:
     build:
       context: ./Websocket-Gateway
-    container_name: websocket-gateway
+    container_name: websocket-gateway2
     ports:
       - "8049:8049"
     depends_on:
@@ -105,7 +105,7 @@ services:
   eureka-server:
     build:
       context: ./Eureka-Server
-    container_name: eureka-server
+    container_name: eureka-server2
     ports:
       - "8761:8761"
     networks:
@@ -114,7 +114,7 @@ services:
   user-service:
     build:
       context: ./user-service
-    container_name: user-service
+    container_name: user-service2
     ports:
       - "5051:5051"
     depends_on:
@@ -125,7 +125,7 @@ services:
   product-service:
     build:
       context: ./product-service
-    container_name: product-service
+    container_name: product-service2
     ports:
       - "5050:5050"
     depends_on:
@@ -136,7 +136,7 @@ services:
   cart-service:
     build:
       context: ./cart-service
-    container_name: cart-service
+    container_name: cart-service2
     ports:
       - "5056:5056"
     depends_on:
@@ -147,7 +147,7 @@ services:
   order-service:
     build:
       context: ./order-service
-    container_name: order-service
+    container_name: order-service2
     ports:
       - "5053:5053"
     depends_on:
@@ -160,7 +160,7 @@ services:
   payment-service:
     build:
       context: ./payment-service
-    container_name: payment-service
+    container_name: payment-service2
     ports:
       - "5054:5054"
     depends_on:
