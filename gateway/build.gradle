@@ -57,11 +57,13 @@ dependencies {
 
     implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
 	implementation 'com.example:grpc-proto:0.0.1-SNAPSHOT'
+    
     implementation 'io.grpc:grpc-netty-shaded:1.57.2'        // Netty cho gRPC Client
     implementation 'io.grpc:grpc-protobuf:1.57.2'
     implementation 'io.grpc:grpc-stub:1.57.2'
     implementation 'io.grpc:grpc-netty-shaded'
     implementation 'io.grpc:grpc-netty'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

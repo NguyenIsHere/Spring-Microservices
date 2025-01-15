@@ -34,7 +34,8 @@ public class UserController {
     UserResponseDTO userResponse = userGrpcClient.createUser(
         createUserDTO.getName(),
         createUserDTO.getEmail(),
-        createUserDTO.getPassword());
+        createUserDTO.getPassword(),
+        createUserDTO.getRole());
     return ResponseEntity.ok(userResponse);
   }
 

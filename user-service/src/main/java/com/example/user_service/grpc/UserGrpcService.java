@@ -72,6 +72,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
       user.setName(request.getName());
       user.setEmail(request.getEmail());
       user.setPassword(request.getPassword()); // Lưu ý: Nên hash mật khẩu trước khi lưu
+      user.setRole(request.getRole());
 
       User savedUser = userRepository.save(user);
 

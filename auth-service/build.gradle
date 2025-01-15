@@ -28,7 +28,7 @@ repositories {
         allowInsecureProtocol = true
         credentials {
             username = "admin" // Tài khoản Nexus
-            password = "admin" // Mật khẩu Nexus
+            password = "admin123" // Mật khẩu Nexus
         }
     }
 }
@@ -42,9 +42,17 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'io.grpc:grpc-services'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-	implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
+
+	implementation 'io.grpc:grpc-services'
+
+  implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
+	implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
+	implementation 'com.example:grpc-proto:0.0.1-SNAPSHOT'
+
+	implementation 'io.grpc:grpc-netty-shaded'
+  implementation 'io.grpc:grpc-netty'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

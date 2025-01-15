@@ -31,11 +31,12 @@ public class UserGrpcClient {
   /**
    * Tạo user mới.
    */
-  public UserResponseDTO createUser(String name, String email, String password) {
+  public UserResponseDTO createUser(String name, String email, String password, String role) {
     CreateUserRequest request = CreateUserRequest.newBuilder()
         .setName(name)
         .setEmail(email)
         .setPassword(password)
+        .setRole(role)
         .build();
 
     UserResponse response = userServiceStub.createUser(request);

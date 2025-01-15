@@ -9,7 +9,19 @@ version = '0.0.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    maven {
+        name = "nexus"
+        if (version.endsWith("-SNAPSHOT")) {
+            url "http://localhost:8081/repository/maven-snapshots/"
+        } else {
+            url "http://localhost:8081/repository/maven-releases/"
+        }
+        allowInsecureProtocol = true
+        credentials {
+            username = "admin" // Tài khoản Nexus
+            password = "admin123" // Mật khẩu Nexus
+        }
+    }
 }
 
 dependencies {
@@ -47,7 +59,6 @@ publishing {
         }
     }
     repositories {
-        mavenLocal()
         maven {
             name = "nexus"
             if (version.endsWith("-SNAPSHOT")) {
