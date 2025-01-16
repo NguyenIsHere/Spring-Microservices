@@ -38,6 +38,12 @@ ext {
 	set('springGrpcVersion', "0.3.0-SNAPSHOT")
 }
 
+configurations.all {
+    resolutionStrategy {
+        cacheChangingModulesFor 0, 'seconds'
+    }
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
@@ -46,7 +52,7 @@ dependencies {
     
     // Use only net.devh starters for gRPC
     implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
-    implementation 'com.example:grpc-proto:0.0.1-SNAPSHOT'
+    	implementation ('com.example:grpc-proto:0.0.1-SNAPSHOT') {changing = true}
     
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

@@ -38,6 +38,12 @@ ext {
 	set('springGrpcVersion', "0.3.0-SNAPSHOT")
 }
 
+configurations.all {
+    resolutionStrategy {
+        cacheChangingModulesFor 0, 'seconds'
+    }
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
@@ -48,10 +54,20 @@ dependencies {
 
   implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
 	implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
-	implementation 'com.example:grpc-proto:0.0.1-SNAPSHOT'
+	implementation ('com.example:grpc-proto:0.0.1-SNAPSHOT') {changing = true}
 
 	implementation 'io.grpc:grpc-netty-shaded'
   implementation 'io.grpc:grpc-netty'
+
+	implementation 'org.springframework.boot:spring-boot-starter-security:3.3.4'
+	implementation 'org.hibernate:hibernate-core:7.0.0.Alpha3'
+	implementation 'io.jsonwebtoken:jjwt:0.12.6'
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6' // Để hỗ trợ JSON serialization
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

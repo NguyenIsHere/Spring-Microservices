@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package auth;
+
+option java_multiple_files = true; // Tách mỗi message ra file riêng
+
+// Auth Service
+service AuthService {
+    rpc Register(RegisterRequest) returns (AuthResponse); // Thêm AuthResponse thay cho chỉ trả về token
+    rpc Login(LoginRequest) returns (AuthResponse);      // Thêm AuthResponse thay cho chỉ trả về token
+    rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse); // Thêm method xác minh token
+}
+
+// Register Request
+message RegisterRequest {
+    string email = 1;
+    string password = 2;
+    string role = 3; // Vai trò của người dùng khi đăng ký
+}
+
+// Login Request
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+// Verify Token Request
+message VerifyTokenRequest {
+    string token = 1; // Token cần xác minh
+}
+
+// Verify Token Response
+message VerifyTokenResponse {
+    string email = 1; // Email lấy từ token
+    string role = 2;  // Vai trò lấy từ token
+    bool is_valid = 3; // Token có hợp lệ hay không
+}
+
+// Auth Response
+message AuthResponse {
+    string token = 1; // Token JWT được tạo
+    string email = 2; // Email của người dùng
+    string role = 3;  // Vai trò của người dùng
+    bool success = 4; // Thêm trạng thái thành công/thất bại
+    string message = 5; // Thêm thông báo phản hồi
+}

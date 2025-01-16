@@ -31,6 +31,12 @@ ext {
 	set('springGrpcVersion', "0.3.0-SNAPSHOT")
 }
 
+configurations.all {
+    resolutionStrategy {
+        cacheChangingModulesFor 0, 'seconds'
+    }
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -39,7 +45,7 @@ dependencies {
 	implementation 'io.grpc:grpc-services'
 	implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
 	implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
-	implementation 'com.example:grpc-proto:0.0.1-SNAPSHOT'
+  implementation ('com.example:grpc-proto:0.0.1-SNAPSHOT') {changing = true}
 
   implementation 'io.grpc:grpc-netty-shaded:1.57.2'        // Netty cho gRPC Client
   implementation 'io.grpc:grpc-protobuf:1.57.2'
