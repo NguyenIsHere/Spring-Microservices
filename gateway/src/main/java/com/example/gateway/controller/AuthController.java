@@ -104,15 +104,16 @@ public class AuthController {
         VerifyTokenResponseDTO responseDTO = new VerifyTokenResponseDTO(
             response.getIsValid(),
             response.getEmail(),
-            response.getRole());
+            response.getRole(),
+            response.getUserId());
         return ResponseEntity.ok(responseDTO);
       } else {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(new VerifyTokenResponseDTO(false, null, null));
+            .body(new VerifyTokenResponseDTO(false, null, null, null));
       }
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body(new VerifyTokenResponseDTO(false, null, null));
+          .body(new VerifyTokenResponseDTO(false, null, null, null));
     }
   }
 

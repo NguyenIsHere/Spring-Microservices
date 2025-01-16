@@ -2,6 +2,7 @@ package com.example.gateway.service;
 
 import org.springframework.stereotype.Service;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import reactor.core.publisher.Mono;
 import user.CreateUserRequest;
 import user.UpdateUserRequest;
 import user.UserEmailRequest;
@@ -61,11 +62,24 @@ public class UserGrpcClient {
     return mapToUserResponseDTO(response);
   }
 
+  public Mono<String> getUserIdByEmail(String email) {
+    return Mono.fromCallable(() -> {
+      UserEmailRequest request = UserEmailRequest.newBuilder()
+          .setEmail(email)
+          .build();
+      UserResponse response = userServiceStub.getUserByEmail(request);
+      return response.getUserId(); // Trả về userId
+    });
+  }
+
   private UserResponseDTO mapToUserResponseDTO(UserResponse response) {
     UserResponseDTO dto = new UserResponseDTO();
     dto.setName(response.getName());
     dto.setEmail(response.getEmail());
     dto.setPassword(response.getPassword());
+    dto.setRole(response.getRole());
+    dto.setUserId(response.getUserId()); // Gắn userId
     return dto;
   }
+
 }

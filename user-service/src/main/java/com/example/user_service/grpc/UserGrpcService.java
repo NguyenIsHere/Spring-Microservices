@@ -41,6 +41,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
           .setEmail(user.getEmail())
           .setPassword(user.getPassword())
           .setRole(user.getRole())
+          .setUserId(user.getId())
           .build();
 
       responseObserver.onNext(response);
@@ -82,6 +83,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
           .setEmail(savedUser.getEmail())
           .setPassword(savedUser.getPassword())
           .setRole(savedUser.getRole())
+          .setUserId(savedUser.getId())
           .build();
 
       responseObserver.onNext(response);
@@ -128,6 +130,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
           .setEmail(updatedUser.getEmail())
           .setPassword(updatedUser.getPassword())
           .setRole(updatedUser.getRole())
+          .setUserId(updatedUser.getId())
           .build();
 
       responseObserver.onNext(response);

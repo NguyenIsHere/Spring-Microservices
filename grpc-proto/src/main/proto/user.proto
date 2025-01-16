@@ -42,4 +42,5 @@ message UserResponse {
     string email = 2;
     string password = 3;
     string role = 4;
+    string userId = 5;
 }

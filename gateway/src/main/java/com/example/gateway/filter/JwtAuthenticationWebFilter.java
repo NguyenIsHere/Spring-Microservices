@@ -2,6 +2,8 @@ package com.example.gateway.filter;
 
 import auth.VerifyTokenResponse;
 import com.example.gateway.service.AuthGrpcClient;
+import com.example.gateway.service.UserGrpcClient;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,9 +22,11 @@ import java.util.Collections;
 public class JwtAuthenticationWebFilter implements WebFilter {
 
   private final AuthGrpcClient authGrpcClient;
+  private final UserGrpcClient userGrpcClient;
 
-  public JwtAuthenticationWebFilter(AuthGrpcClient authGrpcClient) {
+  public JwtAuthenticationWebFilter(AuthGrpcClient authGrpcClient, UserGrpcClient userGrpcClient) {
     this.authGrpcClient = authGrpcClient;
+    this.userGrpcClient = userGrpcClient;
   }
 
   @Override
@@ -30,7 +34,6 @@ public class JwtAuthenticationWebFilter implements WebFilter {
     String path = exchange.getRequest().getURI().getPath();
     if (path.startsWith("/api/v1/auth/register") || path.startsWith("/api/v1/auth/login")
         || path.startsWith("/api/v1/payments/callback")) {
-      // Bỏ qua xác thực cho các endpoint công khai
       return chain.filter(exchange);
     }
 
@@ -39,31 +42,34 @@ public class JwtAuthenticationWebFilter implements WebFilter {
       String token = authHeader.substring(7);
 
       try {
-        // Gọi Auth Service để xác thực token
         VerifyTokenResponse verifyResponse = authGrpcClient.verifyToken(token);
 
         if (verifyResponse.getIsValid()) {
-          // Tạo đối tượng xác thực
-          Authentication authentication = new UsernamePasswordAuthenticationToken(
-              verifyResponse.getEmail(),
-              null,
-              Collections.singleton(() -> verifyResponse.getRole()));
+          // Gọi User Service để lấy userId từ email
+          return userGrpcClient.getUserIdByEmail(verifyResponse.getEmail())
+              .flatMap(userId -> {
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    verifyResponse.getEmail(),
+                    null,
+                    Collections.singleton(() -> verifyResponse.getRole()));
+                authentication.setDetails(userId); // Lưu userId vào details
 
-          // Đặt SecurityContext
-          SecurityContext context = new SecurityContextImpl(authentication);
-
-          // Truyền tiếp luồng với SecurityContext
-          return chain.filter(exchange)
-              .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)));
+                SecurityContext context = new SecurityContextImpl(authentication);
+                return chain.filter(exchange)
+                    .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)));
+              })
+              .onErrorResume(e -> {
+                System.err.println("Error fetching userId: " + e.getMessage());
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+              });
         }
       } catch (Exception e) {
-        // Token không hợp lệ
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         return exchange.getResponse().setComplete();
       }
     }
 
-    // Không có token hoặc token không hợp lệ
     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
     return exchange.getResponse().setComplete();
   }

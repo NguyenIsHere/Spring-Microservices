@@ -134,6 +134,7 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
       responseObserver.onNext(VerifyTokenResponse.newBuilder()
           .setIsValid(true)
+          .setUserId(user.getUserId())
           .setEmail(user.getEmail())
           .setRole(user.getRole())
           .build());

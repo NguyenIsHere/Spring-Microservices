@@ -11,6 +11,11 @@ services:
       - "2181:2181"
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -32,6 +37,11 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.7"
+          memory: 512M
 
   schema-registry:
     image: confluentinc/cp-schema-registry:latest
@@ -47,19 +57,11 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
     networks:
       - app-network
-
-  nexus:
-    image: sonatype/nexus3:latest
-    container_name: nexus2
-    ports:
-      - "8081:8081"
-    volumes:
-      - nexus-data:/nexus-data
-    environment:
-      - NEXUS_SECURITY_RANDOMPASSWORD=false
-    restart: unless-stopped
-    networks:
-      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
   redis:
     image: redis:7.0
@@ -78,27 +80,22 @@ services:
         max-file: "3"
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 128M
 
-  gateway:
-    build:
-      context: ./gateway
-    container_name: gateway2
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: nexus2
     ports:
-      - "8080:8080"
-    depends_on:
-      - eureka-server
-      - redis
-    networks:
-      - app-network
-
-  websocket-gateway:
-    build:
-      context: ./Websocket-Gateway
-    container_name: websocket-gateway2
-    ports:
-      - "8049:8049"
-    depends_on:
-      - eureka-server
+      - "8081:8081"
+    volumes:
+      - nexus-data:/nexus-data
+    environment:
+      - NEXUS_SECURITY_RANDOMPASSWORD=false
+    restart: unless-stopped
     networks:
       - app-network
 
@@ -110,6 +107,13 @@ services:
       - "8761:8761"
     networks:
       - app-network
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
   user-service:
     build:
@@ -121,6 +125,11 @@ services:
       - eureka-server
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
   product-service:
     build:
@@ -132,6 +141,11 @@ services:
       - eureka-server
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
   cart-service:
     build:
@@ -143,6 +157,11 @@ services:
       - eureka-server
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
   order-service:
     build:
@@ -156,6 +175,11 @@ services:
       - cart-service
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
   payment-service:
     build:
@@ -169,6 +193,11 @@ services:
       - redis
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
   auth-service:
     build:
@@ -181,6 +210,43 @@ services:
       - user-service
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: gateway2
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+  websocket-gateway:
+    build:
+      context: ./Websocket-Gateway
+    container_name: websocket-gateway2
+    ports:
+      - "8049:8049"
+    depends_on:
+      - eureka-server
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 128M
 
 networks:
   app-network:

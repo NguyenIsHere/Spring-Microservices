@@ -7,7 +7,10 @@ import com.example.gateway.service.OrderGrpcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -26,28 +29,35 @@ public class OrderController {
    * Trả về thông báo tạm thời: "Request is being processed."
    */
   @PostMapping
-  public ResponseEntity<String> createOrder(@RequestBody CreateOrderDTO createOrderDTO) {
+  public Mono<ResponseEntity<String>> createOrder() {
+    return getCurrentUserId()
+        .flatMap(userId -> {
+          // Tự khởi tạo CreateOrderDTO
+          CreateOrderDTO createOrderDTO = new CreateOrderDTO();
+          createOrderDTO.setUserId(userId);
 
-    logger.info("Received create order request: {}", createOrderDTO);
+          logger.info("Received create order request from userId {}: {}", userId, createOrderDTO);
 
-    // Gửi yêu cầu tới Order Service qua gRPC
-    orderGrpcClient.createOrder(createOrderDTO);
+          // Gửi yêu cầu tới Order Service qua gRPC
+          orderGrpcClient.createOrder(createOrderDTO);
 
-    // Trả về phản hồi tạm thời
-    return ResponseEntity.accepted().body("Your request is being processed.");
+          return Mono.just(ResponseEntity.accepted().body("Your request is being processed."));
+        });
   }
 
   /**
-   * Gửi yêu cầu lấy danh sách đơn hàng của một user.
+   * Gửi yêu cầu lấy danh sách đơn hàng của user hiện tại.
    * Trả về thông báo tạm thời: "Request is being processed."
    */
-  @GetMapping("/{userId}")
-  public ResponseEntity<String> getOrdersByUserId(@PathVariable String userId) {
-    // Gửi yêu cầu tới Order Service qua gRPC
-    orderGrpcClient.getOrdersByUserId(userId);
-
-    // Trả về phản hồi tạm thời
-    return ResponseEntity.accepted().body("Your request is being processed.");
+  @GetMapping
+  public Mono<ResponseEntity<String>> getOrdersByUserId() {
+    return getCurrentUserId()
+        .doOnNext(userId -> logger.info("Fetching orders for userId: {}", userId))
+        .flatMap(userId -> {
+          // Gửi yêu cầu tới Order Service qua gRPC
+          orderGrpcClient.getOrdersByUserId(userId);
+          return Mono.just(ResponseEntity.accepted().body("Your request is being processed."));
+        });
   }
 
   /**
@@ -57,10 +67,31 @@ public class OrderController {
   @PatchMapping("/{orderId}/status")
   public ResponseEntity<String> updateOrderStatus(@PathVariable String orderId,
       @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
+    logger.info("Received update order status request for orderId {}: {}", orderId, updateOrderStatusDTO);
+
     // Gửi yêu cầu tới Order Service qua gRPC
     orderGrpcClient.updateOrderStatus(orderId, updateOrderStatusDTO);
 
     // Trả về phản hồi tạm thời
     return ResponseEntity.accepted().body("Your request is being processed.");
+  }
+
+  /**
+   * Lấy `userId` từ SecurityContext.
+   */
+  private Mono<String> getCurrentUserId() {
+    return ReactiveSecurityContextHolder.getContext()
+        .map(context -> {
+          Authentication authentication = context.getAuthentication();
+          if (authentication == null || authentication.getPrincipal() == null) {
+            throw new IllegalStateException("User not authenticated");
+          }
+          // Lấy userId từ details
+          Object userId = authentication.getDetails();
+          if (userId == null || !(userId instanceof String)) {
+            throw new IllegalStateException("User ID not found in authentication details");
+          }
+          return (String) userId;
+        });
   }
 }
