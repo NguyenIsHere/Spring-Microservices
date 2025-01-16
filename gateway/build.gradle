@@ -21,6 +21,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
     maven { url 'https://repo.spring.io/snapshot' }
     maven {
         url = uri("http://localhost:8081/repository/maven-snapshots/") // Nexus Repository
@@ -69,6 +70,16 @@ dependencies {
     implementation 'io.grpc:grpc-stub:1.57.2'
     implementation 'io.grpc:grpc-netty-shaded'
     implementation 'io.grpc:grpc-netty'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security:3.3.4'
+	implementation 'org.hibernate:hibernate-core:7.0.0.Alpha3'
+	implementation 'io.jsonwebtoken:jjwt:0.12.6'
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+	implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.0' 
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

@@ -2,8 +2,7 @@ package com.example.auth_service.model;
 
 public enum Role {
   ADMIN,
-  USER,
-  MODERATOR;
+  USER;
 
   public static boolean isValidRole(String role) {
     for (Role r : Role.values()) {

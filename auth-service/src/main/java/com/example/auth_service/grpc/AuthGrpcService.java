@@ -1,11 +1,9 @@
 package com.example.auth_service.grpc;
 
-import com.example.auth_service.model.Role;
-import com.example.auth_service.service.UserGrpcClient;
 import com.example.auth_service.util.JwtProvider;
 import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.server.service.GrpcService;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,37 +11,30 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import auth.*;
 import user.UserResponse;
+import user.UserServiceGrpc;
+import user.*;
 
 @GrpcService
 public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
-  private final UserGrpcClient userGrpcClient;
+  @GrpcClient("userServiceChannel")
+  private UserServiceGrpc.UserServiceBlockingStub userServiceStub;
 
   private final PasswordEncoder passwordEncoder;
-
   private final JwtProvider jwtProvider;
 
-  public AuthGrpcService(UserGrpcClient userGrpcClient, PasswordEncoder passwordEncoder,
-      JwtProvider jwtProvider) {
-    this.userGrpcClient = userGrpcClient;
+  public AuthGrpcService(PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
     this.passwordEncoder = passwordEncoder;
     this.jwtProvider = jwtProvider;
   }
 
   @Override
   public void register(RegisterRequest request, StreamObserver<AuthResponse> responseObserver) {
-    // Kiểm tra vai trò hợp lệ
-    if (!Role.isValidRole(request.getRole())) {
-      responseObserver.onNext(AuthResponse.newBuilder()
-          .setSuccess(false)
-          .setMessage("Invalid role provided")
-          .build());
-      responseObserver.onCompleted();
-      return;
-    }
+    UserResponse existingUser = userServiceStub.getUserByEmail(
+        user.UserEmailRequest.newBuilder()
+            .setEmail(request.getEmail())
+            .build());
 
-    // Gọi gRPC đến user-service để kiểm tra email
-    UserResponse existingUser = userGrpcClient.getUserByEmail(request.getEmail());
     if (existingUser != null) {
       responseObserver.onNext(AuthResponse.newBuilder()
           .setSuccess(false)
@@ -53,18 +44,14 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
       return;
     }
 
-    // Tạo CreateUserRequest để gửi đến user-service
-    user.CreateUserRequest createUserRequest = user.CreateUserRequest.newBuilder()
-        .setName("") // Nếu không có thông tin tên, để trống
-        .setEmail(request.getEmail())
-        .setPassword(passwordEncoder.encode(request.getPassword())) // Mã hóa mật khẩu
-        .setRole(request.getRole())
-        .build();
+    UserResponse newUser = userServiceStub.createUser(
+        user.CreateUserRequest.newBuilder()
+            .setName("") // Nếu không có thông tin tên, để trống
+            .setEmail(request.getEmail())
+            .setPassword(passwordEncoder.encode(request.getPassword()))
+            .setRole(request.getRole())
+            .build());
 
-    // Gửi request để tạo user mới
-    UserResponse newUser = userGrpcClient.createUser(createUserRequest);
-
-    // Tạo token JWT
     Authentication authentication = new UsernamePasswordAuthenticationToken(newUser.getEmail(), null);
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String token = jwtProvider.generatedToken(authentication);
@@ -73,7 +60,7 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
         .setSuccess(true)
         .setMessage("Registration successful")
         .setEmail(newUser.getEmail())
-        .setRole(Role.valueOf(newUser.getRole().toUpperCase()).name()) // Chuyển thành dạng chuẩn
+        .setRole(newUser.getRole())
         .setToken(token)
         .build());
     responseObserver.onCompleted();
@@ -81,7 +68,11 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
   @Override
   public void login(LoginRequest request, StreamObserver<AuthResponse> responseObserver) {
-    UserResponse user = userGrpcClient.getUserByEmail(request.getEmail());
+    UserResponse user = userServiceStub.getUserByEmail(
+        UserEmailRequest.newBuilder()
+            .setEmail(request.getEmail())
+            .build());
+
     if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
       responseObserver.onNext(AuthResponse.newBuilder()
           .setSuccess(false)
@@ -91,7 +82,6 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
       return;
     }
 
-    // Authenticate the user and generate JWT
     Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), null);
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String token = jwtProvider.generatedToken(authentication);
@@ -103,26 +93,6 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
         .setRole(user.getRole())
         .setToken(token)
         .build());
-    responseObserver.onCompleted();
-  }
-
-  @Override
-  public void verifyToken(VerifyTokenRequest request, StreamObserver<VerifyTokenResponse> responseObserver) {
-    try {
-      // Extract email and authorities (role) from token
-      String email = jwtProvider.getEmailFromJwt(request.getToken());
-      String role = jwtProvider.getRoleFromJwt(request.getToken()); // You can implement this method in JwtProvider
-
-      responseObserver.onNext(VerifyTokenResponse.newBuilder()
-          .setEmail(email)
-          .setRole(role)
-          .setIsValid(true)
-          .build());
-    } catch (Exception e) {
-      responseObserver.onNext(VerifyTokenResponse.newBuilder()
-          .setIsValid(false)
-          .build());
-    }
     responseObserver.onCompleted();
   }
 }

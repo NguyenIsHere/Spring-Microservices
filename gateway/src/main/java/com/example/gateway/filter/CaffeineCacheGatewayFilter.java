@@ -31,6 +31,7 @@ public class CaffeineCacheGatewayFilter extends AbstractGatewayFilterFactory<Caf
     @Autowired
     private CacheManager cacheManager;
 
+    @SuppressWarnings("unused")
     @Autowired
     private GatewayCacheProperties cacheProperties;
 
