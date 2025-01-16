@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY build/libs/auth-service-*.jar app.jar
 
-EXPOSE 5052
+EXPOSE 5055
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

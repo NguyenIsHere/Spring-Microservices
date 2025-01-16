@@ -14,14 +14,18 @@ public class CacheController {
   @Autowired
   private CacheManager cacheManager;
 
+  @SuppressWarnings("unchecked")
   @GetMapping("/cache/keys")
   public Set<Object> getCacheKeys() {
+    @SuppressWarnings("rawtypes")
     Cache cache = (Cache) cacheManager.getCache("gateway-cache").getNativeCache();
     return cache.asMap().keySet();
   }
 
+  @SuppressWarnings("unchecked")
   @GetMapping("/cache/values")
   public Set<Object> getCacheValues() {
+    @SuppressWarnings("rawtypes")
     Cache cache = (Cache) cacheManager.getCache("gateway-cache").getNativeCache();
     return Set.copyOf(cache.asMap().values());
   }

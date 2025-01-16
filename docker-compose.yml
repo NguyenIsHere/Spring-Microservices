@@ -170,6 +170,18 @@ services:
     networks:
       - app-network
 
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: auth-service2
+    ports:
+      - "5055:5055"
+    depends_on:
+      - eureka-server
+      - user-service
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge

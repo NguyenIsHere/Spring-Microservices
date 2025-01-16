@@ -1,7 +1,7 @@
 package com.example.auth_service.grpc;
 
 import com.example.auth_service.model.Role;
-import com.example.auth_service.service.UserServiceGrpcClient;
+import com.example.auth_service.service.UserGrpcClient;
 import com.example.auth_service.util.JwtProvider;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -17,13 +17,15 @@ import user.UserResponse;
 @GrpcService
 public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
-  private final UserServiceGrpcClient userServiceGrpcClient;
+  private final UserGrpcClient userGrpcClient;
+
   private final PasswordEncoder passwordEncoder;
+
   private final JwtProvider jwtProvider;
 
-  public AuthGrpcService(UserServiceGrpcClient userServiceGrpcClient, PasswordEncoder passwordEncoder,
+  public AuthGrpcService(UserGrpcClient userGrpcClient, PasswordEncoder passwordEncoder,
       JwtProvider jwtProvider) {
-    this.userServiceGrpcClient = userServiceGrpcClient;
+    this.userGrpcClient = userGrpcClient;
     this.passwordEncoder = passwordEncoder;
     this.jwtProvider = jwtProvider;
   }
@@ -41,7 +43,7 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
     }
 
     // Gọi gRPC đến user-service để kiểm tra email
-    UserResponse existingUser = userServiceGrpcClient.getUserByEmail(request.getEmail());
+    UserResponse existingUser = userGrpcClient.getUserByEmail(request.getEmail());
     if (existingUser != null) {
       responseObserver.onNext(AuthResponse.newBuilder()
           .setSuccess(false)
@@ -60,7 +62,7 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
         .build();
 
     // Gửi request để tạo user mới
-    UserResponse newUser = userServiceGrpcClient.createUser(createUserRequest);
+    UserResponse newUser = userGrpcClient.createUser(createUserRequest);
 
     // Tạo token JWT
     Authentication authentication = new UsernamePasswordAuthenticationToken(newUser.getEmail(), null);
@@ -71,7 +73,7 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
         .setSuccess(true)
         .setMessage("Registration successful")
         .setEmail(newUser.getEmail())
-        .setRole(newUser.getRole())
+        .setRole(Role.valueOf(newUser.getRole().toUpperCase()).name()) // Chuyển thành dạng chuẩn
         .setToken(token)
         .build());
     responseObserver.onCompleted();
@@ -79,7 +81,7 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
   @Override
   public void login(LoginRequest request, StreamObserver<AuthResponse> responseObserver) {
-    UserResponse user = userServiceGrpcClient.getUserByEmail(request.getEmail());
+    UserResponse user = userGrpcClient.getUserByEmail(request.getEmail());
     if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
       responseObserver.onNext(AuthResponse.newBuilder()
           .setSuccess(false)
