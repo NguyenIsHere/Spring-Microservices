@@ -1,5 +1,9 @@
 package com.example.gateway.controller;
 
+import com.example.gateway.dto.AuthResponseDTO;
+import com.example.gateway.dto.LoginRequestDTO;
+import com.example.gateway.dto.RegisterRequestDTO;
+import com.example.gateway.dto.VerifyTokenResponseDTO;
 import com.example.gateway.service.AuthGrpcClient;
 
 import auth.AuthResponse;
@@ -8,6 +12,8 @@ import auth.VerifyTokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -22,66 +28,92 @@ public class AuthController {
   /**
    * API để đăng ký người dùng mới.
    *
-   * @param email    Email của user.
-   * @param password Mật khẩu của user.
-   * @param role     Vai trò của user.
+   * @param registerRequestDTO DTO chứa thông tin đăng ký.
    * @return Phản hồi từ Auth-Service.
    */
   @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestParam String email,
-      @RequestParam String password,
-      @RequestParam String role) {
-    AuthResponse response = authGrpcClient.register(email, password, role);
+  public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO registerRequestDTO) {
+    // Gửi yêu cầu gRPC
+    AuthResponse response = authGrpcClient.register(
+        registerRequestDTO.getEmail(),
+        registerRequestDTO.getPassword(),
+        registerRequestDTO.getRole());
+
+    // Tạo DTO phản hồi
+    AuthResponseDTO responseDTO = new AuthResponseDTO(
+        response.getSuccess(),
+        response.getMessage(),
+        response.getEmail(),
+        response.getRole(),
+        response.getToken());
 
     if (response.getSuccess()) {
-      return ResponseEntity.ok(response);
+      return ResponseEntity.ok(responseDTO);
     } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
     }
   }
 
   /**
    * API để đăng nhập.
    *
-   * @param email    Email của user.
-   * @param password Mật khẩu của user.
+   * @param loginRequestDTO DTO chứa thông tin đăng nhập.
    * @return Phản hồi từ Auth-Service.
    */
   @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestParam String email,
-      @RequestParam String password) {
-    AuthResponse response = authGrpcClient.login(email, password);
+  public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+    // Gửi yêu cầu gRPC
+    AuthResponse response = authGrpcClient.login(
+        loginRequestDTO.getEmail(),
+        loginRequestDTO.getPassword());
+
+    // Tạo DTO phản hồi
+    AuthResponseDTO responseDTO = new AuthResponseDTO(
+        response.getSuccess(),
+        response.getMessage(),
+        response.getEmail(),
+        response.getRole(),
+        response.getToken());
 
     if (response.getSuccess()) {
-      return ResponseEntity.ok(response);
+      return ResponseEntity.ok(responseDTO);
     } else {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response.getMessage());
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDTO);
     }
   }
 
   /**
    * API để xác minh token JWT.
    *
-   * @param token JWT token.
+   * @param token JWT token từ header Authorization.
    * @return Phản hồi từ Auth-Service.
    */
   @GetMapping("/verify-token")
-  public ResponseEntity<?> verifyToken(@RequestHeader("Authorization") String token) {
+  public ResponseEntity<VerifyTokenResponseDTO> verifyToken(@RequestHeader("Authorization") String token) {
     try {
       // Loại bỏ tiền tố "Bearer " nếu có trong token
       if (token.startsWith("Bearer ")) {
         token = token.substring(7);
       }
 
+      // Gọi AuthGrpcClient để xác minh token
       VerifyTokenResponse response = authGrpcClient.verifyToken(token);
 
       if (response.getIsValid()) {
-        return ResponseEntity.ok(response);
+        // Tạo DTO phản hồi
+        VerifyTokenResponseDTO responseDTO = new VerifyTokenResponseDTO(
+            response.getIsValid(),
+            response.getEmail(),
+            response.getRole());
+        return ResponseEntity.ok(responseDTO);
       } else {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new VerifyTokenResponseDTO(false, null, null));
       }
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error verifying token: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(new VerifyTokenResponseDTO(false, null, null));
     }
   }
+
 }

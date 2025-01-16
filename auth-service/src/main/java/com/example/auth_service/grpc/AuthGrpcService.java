@@ -111,6 +111,38 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
         .setRole(user.getRole())
         .setToken(token)
         .build());
+
     responseObserver.onCompleted();
+  }
+
+  @Override
+  public void verifyToken(VerifyTokenRequest request, StreamObserver<VerifyTokenResponse> responseObserver) {
+    try {
+      String email = jwtProvider.getEmailFromJwt(request.getToken());
+      UserResponse user = userServiceStub.getUserByEmail(
+          UserEmailRequest.newBuilder()
+              .setEmail(email)
+              .build());
+
+      if (user == null) {
+        responseObserver.onNext(VerifyTokenResponse.newBuilder()
+            .setIsValid(false)
+            .build());
+        responseObserver.onCompleted();
+        return;
+      }
+
+      responseObserver.onNext(VerifyTokenResponse.newBuilder()
+          .setIsValid(true)
+          .setEmail(user.getEmail())
+          .setRole(user.getRole())
+          .build());
+      responseObserver.onCompleted();
+    } catch (Exception e) {
+      responseObserver.onNext(VerifyTokenResponse.newBuilder()
+          .setIsValid(false)
+          .build());
+      responseObserver.onCompleted();
+    }
   }
 }
