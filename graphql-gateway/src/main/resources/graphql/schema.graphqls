@@ -1,10 +1,36 @@
 type Query {
     getUser(email: String!): User
+    getOrderById(orderId: String!): Order
+    getOrdersByUserId(userId: String!): [Order] # Lưu ý: Trả về danh sách Order
 }
+
 
 type User {
     name: String
     email: String
     userId: String
     role: String
+    orders: [Order] # Thêm danh sách Order vào User
+}
+
+type Order {
+    id: String
+    userId: String
+    items: [OrderItem]
+    totalPrice: Float
+    totalQuantity: Int
+    status: String
+    createdAt: String
+    updatedAt: String
+}
+
+type OrderItem {
+    productVariantId: String
+    name: String
+    color: String
+    size: String
+    imageUrl: String
+    quantity: Int
+    price: Float
+    totalPrice: Float
 }
