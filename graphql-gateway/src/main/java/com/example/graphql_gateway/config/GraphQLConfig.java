@@ -29,7 +29,7 @@ public class GraphQLConfig {
   }
 
   @Bean
-  public GraphQL graphQL() throws Exception {
+  GraphQL graphQL() throws Exception {
     Resource resource = resourceLoader.getResource("classpath:schema.graphqls");
     SchemaParser schemaParser = new SchemaParser();
     GraphQLSchema graphQLSchema = new SchemaGenerator()

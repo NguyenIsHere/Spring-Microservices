@@ -53,6 +53,7 @@ configurations.all {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-graphql'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client' // Eureka client
 
 	implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
@@ -64,8 +65,9 @@ dependencies {
   implementation 'io.grpc:grpc-netty-shaded'
   implementation 'io.grpc:grpc-netty'
 
+	implementation 'io.grpc:grpc-census:1.57.2'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework:spring-webflux'
 	testImplementation 'org.springframework.graphql:spring-graphql-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
