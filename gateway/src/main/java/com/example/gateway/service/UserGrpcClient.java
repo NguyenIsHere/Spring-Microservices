@@ -1,5 +1,7 @@
 package com.example.gateway.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import reactor.core.publisher.Mono;
@@ -11,8 +13,12 @@ import user.UserServiceGrpc;
 
 import com.example.gateway.dto.UserResponseDTO;
 
+import io.grpc.StatusRuntimeException;
+
 @Service
 public class UserGrpcClient {
+
+  private static final Logger logger = LoggerFactory.getLogger(UserGrpcClient.class);
 
   @GrpcClient("userServiceChannel") // Tên channel gRPC trong application.properties
   private UserServiceGrpc.UserServiceBlockingStub userServiceStub;
@@ -20,13 +26,42 @@ public class UserGrpcClient {
   /**
    * Lấy thông tin user theo email.
    */
-  public UserResponseDTO getUserByEmail(String email) {
-    UserEmailRequest request = UserEmailRequest.newBuilder()
-        .setEmail(email)
-        .build();
+  // public UserResponseDTO getUserByEmail(String email) {
+  // UserEmailRequest request = UserEmailRequest.newBuilder()
+  // .setEmail(email)
+  // .build();
 
-    UserResponse response = userServiceStub.getUserByEmail(request);
-    return mapToUserResponseDTO(response);
+  // UserResponse response = userServiceStub.getUserByEmail(request);
+  // return mapToUserResponseDTO(response);
+  // }
+
+  public Mono<UserResponse> getUserByEmail(String email) {
+    return Mono.create(sink -> {
+      try {
+        if (email == null || email.trim().isEmpty()) {
+          logger.error("Email parameter is null or empty");
+          sink.error(new IllegalArgumentException("Email cannot be null or empty"));
+          return;
+        }
+
+        UserEmailRequest request = UserEmailRequest.newBuilder()
+            .setEmail(email)
+            .build();
+
+        logger.debug("Sending gRPC request for email: {}", email);
+        UserResponse response = userServiceStub.getUserByEmail(request);
+
+        logger.debug("Received gRPC response: {}", response);
+        sink.success(response);
+
+      } catch (StatusRuntimeException e) {
+        logger.error("gRPC call failed: {} - {}", e.getStatus().getCode(), e.getStatus().getDescription());
+        sink.error(e);
+      } catch (Exception e) {
+        logger.error("Unexpected error in getUserByEmail", e);
+        sink.error(e);
+      }
+    });
   }
 
   /**

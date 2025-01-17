@@ -1,5 +1,42 @@
-{"properties": [{
-  "name": "spring.graphql.servlet.mapping",
-  "type": "java.lang.String",
-  "description": "A description for 'spring.graphql.servlet.mapping'"
-}]}
+{"properties": [
+  {
+    "name": "spring.graphql.servlet.mapping",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.graphql.servlet.mapping'"
+  },
+  {
+    "name": "grpc.server.port",
+    "type": "java.lang.String",
+    "description": "A description for 'grpc.server.port'"
+  },
+  {
+    "name": "graphql.tools.introspection-enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'graphql.tools.introspection-enabled'"
+  },
+  {
+    "name": "graphql.tools.schema-location-pattern",
+    "type": "java.lang.String",
+    "description": "A description for 'graphql.tools.schema-location-pattern'"
+  },
+  {
+    "name": "graphql.servlet.async-timeout",
+    "type": "java.lang.String",
+    "description": "A description for 'graphql.servlet.async-timeout'"
+  },
+  {
+    "name": "graphql.servlet.cors-enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'graphql.servlet.cors-enabled'"
+  },
+  {
+    "name": "graphql.servlet.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'graphql.servlet.enabled'"
+  },
+  {
+    "name": "graphql.servlet.mapping",
+    "type": "java.lang.String",
+    "description": "A description for 'graphql.servlet.mapping'"
+  }
+]}

@@ -1,36 +1,30 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.4.1'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.4.1'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(20)
-	}
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(20)
+    }
 }
 
 repositories {
-	mavenCentral()
-	maven { url 'https://repo.spring.io/milestone' }
-  maven { url 'https://repo.spring.io/snapshot' }
-  maven {
-		url = uri("http://localhost:8081/repository/maven-snapshots/") // Nexus Repository
-		allowInsecureProtocol = true
-		credentials {
-				username = "admin" // Tài khoản Nexus
-				password = "admin123" // Mật khẩu Nexus
-		}
-	}
+    mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+    maven {
+        url = uri("http://localhost:8081/repository/maven-snapshots/") // Nexus Repository
+        allowInsecureProtocol = true
+        credentials {
+            username = "admin" // Tài khoản Nexus
+            password = "admin123" // Mật khẩu Nexus
+        }
+    }
 }
 
 ext {
@@ -52,33 +46,44 @@ configurations.all {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-graphql'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	// add webflux
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
-	implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
-	implementation ('com.example:grpc-proto:0.0.1-SNAPSHOT') {changing = true}
+    // GraphQL
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'com.graphql-java-kickstart:graphql-java-tools:13.1.0'
     
-  implementation 'io.grpc:grpc-netty-shaded:1.57.2' 
-  implementation 'io.grpc:grpc-protobuf:1.57.2'
-  implementation 'io.grpc:grpc-stub:1.57.2'
-  implementation 'io.grpc:grpc-netty-shaded'
-  implementation 'io.grpc:grpc-netty'
+    // Spring Boot & Cloud
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+		implementation 'org.springframework.boot:spring-boot-starter-webflux' // Hỗ trợ WebFlux nếu cần
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
-	implementation 'io.grpc:grpc-census:1.57.2'
-	implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
-	implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
-	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    // gRPC
+    implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
+    implementation ('com.example:grpc-proto:0.0.1-SNAPSHOT') { changing = true }
 
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Protobuf & Netty
+    implementation 'io.grpc:grpc-netty-shaded:1.57.2'
+    implementation 'io.grpc:grpc-protobuf:1.57.2'
+    implementation 'io.grpc:grpc-stub:1.57.2'
+		implementation 'io.grpc:grpc-services:1.57.2'
+		implementation 'io.grpc:grpc-all:1.57.2'
+
+
+    // Jakarta & Hibernate Validator
+    implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << '-parameters'
 }
+
+

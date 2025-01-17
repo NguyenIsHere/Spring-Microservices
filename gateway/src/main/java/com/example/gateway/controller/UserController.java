@@ -4,12 +4,21 @@ import com.example.gateway.dto.CreateUserDTO;
 import com.example.gateway.dto.UpdateUserDTO;
 import com.example.gateway.dto.UserResponseDTO;
 import com.example.gateway.service.UserGrpcClient;
+
+import reactor.core.publisher.Mono;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
+
+  private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
   private final UserGrpcClient userGrpcClient;
 
@@ -21,9 +30,22 @@ public class UserController {
    * Lấy thông tin user theo email.
    */
   @GetMapping("/{email}")
-  public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
-    UserResponseDTO userResponse = userGrpcClient.getUserByEmail(email);
-    return ResponseEntity.ok(userResponse);
+  public Mono<ResponseEntity<UserResponseDTO>> getUserByEmail(@PathVariable String email) {
+    return userGrpcClient.getUserByEmail(email)
+        .map(userResponse -> {
+          UserResponseDTO userResponseDTO = new UserResponseDTO();
+          userResponseDTO.setName(userResponse.getName());
+          userResponseDTO.setEmail(userResponse.getEmail());
+          userResponseDTO.setUserId(userResponse.getUserId());
+          userResponseDTO.setRole(userResponse.getRole());
+          return ResponseEntity.ok(userResponseDTO);
+        })
+        .defaultIfEmpty(ResponseEntity.notFound().build())
+        .onErrorResume(e -> {
+          // Log lỗi nếu có
+          logger.error("Error fetching user by email {}: {}", email, e.getMessage());
+          return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        });
   }
 
   /**

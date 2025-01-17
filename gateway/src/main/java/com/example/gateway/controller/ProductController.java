@@ -2,6 +2,7 @@ package com.example.gateway.controller;
 
 import com.example.gateway.dto.CreateProductDTO;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import product.ProductResponse;
 import product.ProductListResponse;
@@ -16,6 +17,7 @@ public class ProductController {
     this.productGrpcClient = productGrpcClient;
   }
 
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN')") // USER hoặc ADMIN được truy cập
   @GetMapping("/{id}")
   public ProductResponse getProduct(@PathVariable String id) {
     return productGrpcClient.getProduct(id);

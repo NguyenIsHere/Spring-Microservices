@@ -26,6 +26,7 @@ public class WebSecurityConfig {
         .authorizeExchange(exchange -> exchange
             .pathMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll() // Công khai
             .pathMatchers("/api/v1/payments/callback").permitAll() // Công khai
+            .pathMatchers("/api/v1/**").hasAnyRole("ADMIN", "USER") // USER hoặc ADMIN được truy cập
             .anyExchange().authenticated() // Yêu cầu xác thực
         )
         .addFilterAt(jwtAuthenticationWebFilter,
