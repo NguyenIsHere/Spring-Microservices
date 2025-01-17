@@ -12,6 +12,7 @@ import org.springframework.core.io.ResourceLoader;
 
 import com.example.graphql_gateway.resolver.ProductResolver;
 import com.example.graphql_gateway.resolver.UserResolver;
+import com.example.graphql_gateway.resolver.AllProductsResolver;
 
 import java.io.InputStreamReader;
 
@@ -20,21 +21,27 @@ public class GraphQLConfig {
 
   private final UserResolver userResolver;
   private final ProductResolver productResolver;
+  private final AllProductsResolver allProductsResolver;
   private final ResourceLoader resourceLoader;
 
-  public GraphQLConfig(UserResolver userResolver, ProductResolver productResolver, ResourceLoader resourceLoader) {
+  public GraphQLConfig(UserResolver userResolver,
+      ProductResolver productResolver,
+      AllProductsResolver allProductsResolver,
+      ResourceLoader resourceLoader) {
     this.userResolver = userResolver;
     this.productResolver = productResolver;
+    this.allProductsResolver = allProductsResolver;
     this.resourceLoader = resourceLoader;
   }
 
   @Bean
-  GraphQL graphQL() throws Exception {
+  public GraphQL graphQL() throws Exception {
     Resource resource = resourceLoader.getResource("classpath:schema.graphqls");
-    SchemaParser schemaParser = new SchemaParser();
+
+    // Parse và tạo GraphQL schema từ file schema.graphqls
     GraphQLSchema graphQLSchema = new SchemaGenerator()
         .makeExecutableSchema(
-            schemaParser.parse(new InputStreamReader(resource.getInputStream())),
+            new SchemaParser().parse(new InputStreamReader(resource.getInputStream())),
             runtimeWiring());
 
     return GraphQL.newGraphQL(graphQLSchema).build();
@@ -43,8 +50,9 @@ public class GraphQLConfig {
   private RuntimeWiring runtimeWiring() {
     return RuntimeWiring.newRuntimeWiring()
         .type("Query", typeWiring -> typeWiring
-            .dataFetcher("getUser", userResolver) // Sử dụng resolver được quản lý bởi Spring
-            .dataFetcher("getProduct", productResolver))
+            .dataFetcher("getUser", userResolver) // Gắn UserResolver cho getUser
+            .dataFetcher("getProduct", productResolver) // Gắn ProductResolver cho getProduct
+            .dataFetcher("getAllProducts", allProductsResolver)) // Gắn AllProductsResolver cho getAllProducts
         .build();
   }
 }

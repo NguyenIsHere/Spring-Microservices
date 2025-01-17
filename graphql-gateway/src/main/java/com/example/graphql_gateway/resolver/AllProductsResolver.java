@@ -1,27 +1,33 @@
 package com.example.graphql_gateway.resolver;
 
-import com.example.graphql_gateway.dto.ProductDTO;
-import com.example.graphql_gateway.service.ProductGrpcClient;
-import graphql.schema.DataFetcher;
-import graphql.schema.DataFetchingEnvironment;
-import product.ProductResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.example.graphql_gateway.dto.ProductDTO;
+import com.example.graphql_gateway.service.ProductGrpcClient;
+
+import graphql.schema.DataFetcher;
+import graphql.schema.DataFetchingEnvironment;
+import product.ProductListResponse;
+import product.ProductResponse;
+
 @Component
-public class ProductResolver implements DataFetcher<ProductDTO> {
+public class AllProductsResolver implements DataFetcher<List<ProductDTO>> {
 
   private final ProductGrpcClient productGrpcClient;
 
-  public ProductResolver(ProductGrpcClient productGrpcClient) {
+  public AllProductsResolver(ProductGrpcClient productGrpcClient) {
     this.productGrpcClient = productGrpcClient;
   }
 
   @Override
-  public ProductDTO get(DataFetchingEnvironment environment) {
-    String productId = environment.getArgument("productId");
-    ProductResponse response = productGrpcClient.getProduct(productId);
-    return mapToProductDTO(response);
+  public List<ProductDTO> get(DataFetchingEnvironment environment) {
+    ProductListResponse response = productGrpcClient.getAllProducts();
+    return response.getProductsList().stream()
+        .map(this::mapToProductDTO)
+        .collect(Collectors.toList());
   }
 
   private ProductDTO mapToProductDTO(ProductResponse response) {
@@ -29,7 +35,6 @@ public class ProductResolver implements DataFetcher<ProductDTO> {
     productDTO.setProductId(response.getId());
     productDTO.setName(response.getName());
     productDTO.setDescription(response.getDescription());
-    // Nếu muốn xử lý trường `price`, lấy từ `variants`
     if (!response.getVariantsList().isEmpty()) {
       productDTO.setPrice(response.getVariantsList().get(0).getPrice());
     }

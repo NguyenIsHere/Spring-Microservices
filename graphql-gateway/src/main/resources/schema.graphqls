@@ -1,6 +1,7 @@
 type Query {
     getUser(email: String!): User
     getProduct(productId: String!): Product
+    getAllProducts: [Product]
 }
 
 type User {
@@ -15,4 +16,15 @@ type Product {
     name: String
     description: String
     price: Float
+    variants: [ProductVariant]
+}
+
+type ProductVariant {
+    id: String
+    price: Float
+    quantity: Int
+    color: String
+    size: String
+    imageUrl: String
+    isAvailable: Boolean
 }
