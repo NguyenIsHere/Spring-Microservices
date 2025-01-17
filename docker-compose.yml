@@ -237,7 +237,7 @@ services:
       context: ./graphql-gateway
     container_name: graphql-gateway2
     ports:
-      - "8090:8090"
+      - "5060:5060"
     depends_on:
       - eureka-server
     networks:

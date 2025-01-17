@@ -9,7 +9,7 @@ import user.UserResponse;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserResolver implements DataFetcher<UserDTO> {
+public class UserResolver implements DataFetcher<UserResponse> {
 
   private final UserGrpcClient userGrpcClient;
 
@@ -18,18 +18,14 @@ public class UserResolver implements DataFetcher<UserDTO> {
   }
 
   @Override
-  public UserDTO get(DataFetchingEnvironment environment) {
+  public UserResponse get(DataFetchingEnvironment environment) {
     String email = environment.getArgument("email");
-    UserResponse response = userGrpcClient.getUserByEmail(email);
-    return mapToUserDTO(response);
-  }
+    System.out.println("Fetching user with email: " + email);
 
-  private UserDTO mapToUserDTO(UserResponse response) {
-    UserDTO userDTO = new UserDTO();
-    userDTO.setName(response.getName());
-    userDTO.setEmail(response.getEmail());
-    userDTO.setUserId(response.getUserId());
-    userDTO.setRole(response.getRole());
-    return userDTO;
+    UserResponse response = userGrpcClient.getUserByEmail(email);
+
+    System.out.println("Resolver response: " + response);
+
+    return response;
   }
 }

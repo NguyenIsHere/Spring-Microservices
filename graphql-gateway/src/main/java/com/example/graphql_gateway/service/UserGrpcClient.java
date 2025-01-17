@@ -16,6 +16,9 @@ public class UserGrpcClient {
     UserEmailRequest request = UserEmailRequest.newBuilder()
         .setEmail(email)
         .build();
-    return userServiceStub.getUserByEmail(request);
+    UserResponse response = userServiceStub.getUserByEmail(request);
+    // Debug log dữ liệu trả về
+    System.out.println("gRPC Response: " + response);
+    return response;
   }
 }

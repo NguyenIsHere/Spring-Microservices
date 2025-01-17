@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import com.example.graphql_gateway.resolver.AllProductsResolver;
 import com.example.graphql_gateway.resolver.ProductResolver;
 import com.example.graphql_gateway.resolver.UserResolver;
-import com.example.graphql_gateway.resolver.AllProductsResolver;
 
 import java.io.InputStreamReader;
 
@@ -36,23 +36,24 @@ public class GraphQLConfig {
 
   @Bean
   public GraphQL graphQL() throws Exception {
-    Resource resource = resourceLoader.getResource("classpath:schema.graphqls");
-
-    // Parse và tạo GraphQL schema từ file schema.graphqls
+    // Load schema from the file
+    Resource schemaResource = resourceLoader.getResource("classpath:schema.graphqls");
+    SchemaParser schemaParser = new SchemaParser();
     GraphQLSchema graphQLSchema = new SchemaGenerator()
         .makeExecutableSchema(
-            new SchemaParser().parse(new InputStreamReader(resource.getInputStream())),
+            schemaParser.parse(new InputStreamReader(schemaResource.getInputStream())),
             runtimeWiring());
 
     return GraphQL.newGraphQL(graphQLSchema).build();
   }
 
-  private RuntimeWiring runtimeWiring() {
+  @Bean
+  public RuntimeWiring runtimeWiring() {
     return RuntimeWiring.newRuntimeWiring()
         .type("Query", typeWiring -> typeWiring
-            .dataFetcher("getUser", userResolver) // Gắn UserResolver cho getUser
-            .dataFetcher("getProduct", productResolver) // Gắn ProductResolver cho getProduct
-            .dataFetcher("getAllProducts", allProductsResolver)) // Gắn AllProductsResolver cho getAllProducts
+            .dataFetcher("getUser", userResolver)
+            .dataFetcher("getProduct", productResolver)
+            .dataFetcher("getAllProducts", allProductsResolver))
         .build();
   }
 }
