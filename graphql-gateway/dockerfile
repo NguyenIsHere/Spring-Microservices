@@ -2,7 +2,8 @@ FROM openjdk:20-jdk
 
 WORKDIR /app
 
-COPY build/libs/gateway-*.jar app.jar
+COPY build/libs/graphql-gateway-*.jar app.jar
+COPY src/main/resources /app/resources
 
 EXPOSE 8048
 

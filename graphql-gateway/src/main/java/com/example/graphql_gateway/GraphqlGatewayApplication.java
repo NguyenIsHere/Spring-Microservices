@@ -1,13 +1,13 @@
-package com.example.graphlql_gateway;
+package com.example.graphql_gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GraphlqlGatewayApplication {
+public class GraphqlGatewayApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GraphlqlGatewayApplication.class, args);
+		SpringApplication.run(GraphqlGatewayApplication.class, args);
 	}
 
 }

@@ -232,6 +232,22 @@ services:
           cpus: "0.5"
           memory: 256M
 
+  graphql-gateway:
+    build:
+      context: ./graphql-gateway
+    container_name: graphql-gateway2
+    ports:
+      - "8048:8048"
+    depends_on:
+      - eureka-server
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
   websocket-gateway:
     build:
       context: ./Websocket-Gateway

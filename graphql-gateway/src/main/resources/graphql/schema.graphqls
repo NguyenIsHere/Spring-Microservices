@@ -1,0 +1,18 @@
+type Query {
+    getUser(email: String!): User
+    getProduct(productId: String!): Product
+}
+
+type User {
+    name: String
+    email: String
+    userId: String
+    role: String
+}
+
+type Product {
+    productId: String
+    name: String
+    description: String
+    price: Float
+}
