@@ -221,7 +221,7 @@ services:
       context: ./gateway
     container_name: gateway2
     ports:
-      - "8080:8080"
+      - "8088:8088"
     depends_on:
       - eureka-server
     networks:
